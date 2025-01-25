@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alimad Surveys</title>
+    <meta property="og:title" content="Alimad Survey 2025">
+    <meta property="og:description" content="If you had one software that you think you need the most...">
+    <meta property="og:image" content="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSTXns68wtDpPxO_YL9lqQTZkQCKppnlxFfA&s">
+    <meta property="og:url" content="https://alimadcorp.github.io/survey/a2025.html">
+    <link rel="icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSTXns68wtDpPxO_YL9lqQTZkQCKppnlxFfA&s">
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCH5fSm8L2-OttClhOiFGJmoNB_GLYkdhk",
+            authDomain: "survey-75c3c.firebaseapp.com",
+            projectId: "survey-75c3c",
+            storageBucket: "survey-75c3c.firebasestorage.app",
+            messagingSenderId: "607873827800",
+            appId: "1:607873827800:web:7ec77a638d0c28c11128ad",
+            measurementId: "G-FK1WE5BNNB"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        let allowed = true;
+        if (localStorage.getItem("surveyResponses") >= 90) {
+            document.body.innerHTML = "<h2>Bro how many responses are you willing to submit? </h2>";
+            allowed = false;
+        }
+
+        const surveyData = {
+            "If you had one software that you think you need the most, write it down here": "I want a software that...",
+            "Anything else you want to say": "Anything"
+        };
+
+        const questionsContainer = document.getElementById("questions");
+        for (const question in surveyData) {
+        if(!allowed) continue;
+            const label = document.createElement("label");
+            label.textContent = question;
+
+            const textarea = document.createElement("textarea");
+            textarea.setAttribute("rows", 3);
+            textarea.dataset.question = question;
+            textarea.setAttribute("placeholder", surveyData[question]);
+            textarea.style.resize = "vertical";
+
+            const charCount = document.createElement("span");
+            charCount.textContent = "0/500";
+            charCount.style.fontSize = "12px";
+            charCount.style.color = "#aaa";
+
+            textarea.addEventListener("input", () => {
+                const remainingChars = 500 - textarea.value.length;
+                charCount.textContent = `${remainingChars}/500`;
+            });
+
+            questionsContainer.appendChild(label);
+            questionsContainer.appendChild(textarea);
+            questionsContainer.appendChild(charCount);
+        }
+        document.getElementById("submit").addEventListener("click", async () => {
+            const submitButton = document.getElementById("submit");
+            const statusMessage = document.getElementById("status");
+
+            submitButton.textContent = "Submitting...";
+            submitButton.disabled = true;
+
+            const name = document.getElementById("name").value.trim();
+            if (!name || name.length < 3) {
+                alert("Please enter a name with at least 3 characters!");
+                resetButton();
+                return;
+            }
+
+            const responses = {};
+            document.querySelectorAll("textarea").forEach(textarea => {
+                const response = textarea.value.trim();
+                if (!response) {
+                    alert("Please answer all questions!");
+                    resetButton();
+                    return;
+                }
+                responses[textarea.dataset.question] = response;
+            });
+
+            try {
+                await addDoc(collection(db, "surveyResponses"), {
+                    name,
+                    responses,
+                    timestamp: serverTimestamp()
+                });
+
+                let responseCount = parseInt(localStorage.getItem("surveyResponses") || "0");
+                localStorage.setItem("surveyResponses", responseCount + 1);
+
+                document.getElementById("survey-form").style.display = "none";
+                document.getElementById("response-container").style.display = "block";
+                statusMessage.textContent = "Response Submitted Successfully!";
+                statusMessage.style.color = "green";
+
+                window.scrollTo({ top: 0, behavior: "smooth" });
+                resetButton();
+            } catch (error) {
+                console.error("Error submitting:", error);
+                statusMessage.textContent = "Error submitting response. Try again.";
+                statusMessage.style.color = "red";
+                resetButton();
+            }
+        });
+
+        function resetButton() {
+            const submitButton = document.getElementById("submit");
+            submitButton.textContent = "Submit";
+            submitButton.disabled = false;
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --input-bg: #f0f0f0;
+            --btn-bg: #007BFF;
+            --btn-text: #ffffff;
+            --btn-hover: #0056b3;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #121212;
+                --text-color: #ffffff;
+                --input-bg: #1e1e1e;
+                --btn-bg: #0a84ff;
+                --btn-hover: #005ecb;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            font-weight: 600;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+
+        textarea, input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border-radius: 5px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: var(--btn-bg);
+            color: var(--btn-text);
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 5px;
+            transition: 0.2s;
+        }
+
+        button:disabled {
+            background: gray;
+            cursor: not-allowed;
+        }
+
+        button:hover {
+            background: var(--btn-hover);
+        }
+
+        #response-container {
+            display: none;
+            text-align: center;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        #status {
+            text-align: center;
+            font-size: 16px;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Alimad Surveys</h2>
+    <h3></h3>
+
+    <div id="survey-form">
+        <label for="name">Your Name:</label>
+        <input type="text" id="name" placeholder="Enter your name" required>
+
+        <div id="questions"></div>
+
+        <button id="submit">Submit</button>
+        <p id="status"></p>
+    </div>
+
+    <div id="response-container">
+        <p>Thank you for submitting</p>
+    </div>
+
+</body>
+</html>
