@@ -26,7 +26,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         let allowed = true;
-        if (localStorage.getItem("surveyResponses") >= 90) {
+        if (localStorage.getItem("surveyResponses") >= 3) {
             document.body.innerHTML = "<h2>Bro how many responses are you willing to submit? </h2>";
             allowed = false;
         }
