@@ -31,10 +31,11 @@
             allowed = false;
         }
 
-        const surveyData = {
-            "If you had one software that you think you need the most, write it down here": "Required",
-            "Anything else you want to say": "Also required for some reason"
-        };
+let surveyData = {
+    [`Write down the problems you face with your ${getOS()} that no other software currently solves`]: "Required",
+    "Anything else you want to say": "Also required for some reason"
+};
+
 
         const questionsContainer = document.getElementById("questions");
         for (const question in surveyData) {
@@ -117,6 +118,17 @@
             submitButton.textContent = "Submit";
             submitButton.disabled = false;
         }
+        function getOS() {
+    let os = "device";
+
+    if (navigator.userAgent.indexOf("Android") !== -1) os = "phone";
+    else if (navigator.appVersion.indexOf("Win") !== -1) os = "computer";
+    else if (navigator.appVersion.indexOf("Mac") !== -1) os = "mac";
+    else if (navigator.appVersion.indexOf("X11") !== -1) os = "unix";
+    else if (navigator.appVersion.indexOf("Linux") !== -1) os = "linux";
+
+    return os;
+}
     </script>
 
     <style>
