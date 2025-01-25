@@ -42,7 +42,7 @@
 
                 Object.entries(responseData.responses).forEach(([question, response]) => {
                     const responseCell = document.createElement("td");
-                    responseCell.textContent = `${question}: ${response}`;
+                    responseCell.textContent = `${response}`;
                     row.appendChild(responseCell);
                 });
 
@@ -160,7 +160,7 @@
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Responses</th>
+                    <th>Response</th>
                     <th>Actions</th>
                 </tr>
             </thead>
